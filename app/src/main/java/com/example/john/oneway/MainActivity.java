@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements  GoogleApiClient.
     public static final String TAG = MainActivity.class.getSimpleName();
     public static final String EXTRA = "FilterExtra";
 
-
     MapFragment mMapFragment;
 protected Location mLastLocation;
 private GoogleMap map;

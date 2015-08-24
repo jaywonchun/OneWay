@@ -21,5 +21,7 @@
     <color name="white">#FFFFFF</color>
 
     <string name="title_activity_search">SearchActivity</string>
+    <string name="error_title">Opps! Sorry!</string>
+    <string name="error_message">There was an error. Please try again</string>
 
 </resources>
