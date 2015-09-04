@@ -8,6 +8,14 @@
                 android:paddingTop="@dimen/activity_vertical_margin"
                 tools:context=".MainActivity">
 
+    <Spinner
+        android:id="@+id/areaspinner"
+        android:layout_width="150dip"
+        android:layout_height="40dip"
+        android:drawSelectorOnTop="true"
+        android:padding="5dip"
+        android:paddingLeft="10dip"/>
+
     <AutoCompleteTextView
         android:id="@+id/autoCompleteTextView"
         android:layout_width="match_parent"
@@ -16,25 +24,6 @@
         android:layout_marginTop="50dp"
         android:hint="Enter your address here"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:id="@+id/currentbutton"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/autoCompleteTextView"/>
-
-    <TextView
-        android:id="@+id/header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/currentbutton"
-        android:layout_marginTop="20dp"
-        android:text="Selected Place:"
-        android:textStyle="bold"/>
-
 
     <AutoCompleteTextView
         android:id="@+id/autoCompleteTextView2"
@@ -42,9 +31,9 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:layout_below="@+id/header"
 
-        android:hint="Enter your address here"/>
+        android:hint="Enter your address here"
+        android:layout_below="@+id/autoCompleteTextView"/>
 
 
     <TextView
@@ -67,12 +56,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/header"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/autoCompleteTextView"/>
 
     <TextView
         android:id="@+id/address"
         android:layout_width="wrap_content"
+        android:textColor="@color/white"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -131,5 +121,13 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="-20dp"
        />
+
+    <Button android:id="@+id/popupbutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="Show Popup" />
+
 
 </RelativeLayout>

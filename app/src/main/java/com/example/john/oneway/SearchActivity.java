@@ -1,7 +1,20 @@
 package com.example.john.oneway;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle; import android.view.View; import android.view.View.OnClickListener;  import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout; import android.widget.PopupWindow; import android.widget.TextView;
+
+
+
+
+
+
+
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +22,12 @@ import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,13 +46,18 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import android.view.ViewGroup.LayoutParams;
 
 
 public class SearchActivity extends FragmentActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks {
-private static final String LOG_TAG = "MainActivity";
+
+ private static final int EDIT_TASK_REQUEST = 10;
+
+    private static final String LOG_TAG = "MainActivity";
 private static final int GOOGLE_API_CLIENT_ID = 0;
+    public static final String TAG = SearchActivity.class.getSimpleName();
 
 private AutoCompleteTextView mAutocompleteTextView;
 private AutoCompleteTextView mAutoCompleteTextView2;
@@ -45,17 +68,29 @@ private TextView mPhoneTextView;
 private TextView mWebTextView;
 private TextView mAttTextView;
 private GoogleApiClient mGoogleApiClient;
+    private Spinner areaspinner;
 private PlaceArrayAdapter mPlaceArrayAdapter;
+
 private PlaceArrayAdapter mChurchArrayAdapter;
 private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(new LatLng(43.445667, -79.971781), new LatLng(44.132634, -79.230450
 ));
+
+    LinearLayout layoutOfPopup;
+    PopupWindow popupMessage;
+    Button mPopupButton, insidePopupButton;
+    TextView popupText;
+
+
 //private List<Integer> filterTypes = new ArrayList<Integer>();
 
 @Override
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        mGoogleApiClient = new GoogleApiClient.Builder(SearchActivity.this)
+
+
+
+    mGoogleApiClient = new GoogleApiClient.Builder(SearchActivity.this)
             .addApi(Places.GEO_DATA_API)
            .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)
             .addConnectionCallbacks(this)
@@ -87,6 +122,16 @@ protected void onCreate(Bundle savedInstanceState) {
 
         BOUNDS_MOUNTAIN_VIEW, null);
         mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
+    mPopupButton = (Button) findViewById(R.id.popupbutton);
+
+    mPopupButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(SearchActivity.this, Pop.class);
+                startActivityForResult(i, EDIT_TASK_REQUEST);
+
+            }
+        });
         }
 
 
@@ -171,4 +216,20 @@ public void onConnectionSuspended(int i) {
         mPlaceArrayAdapter.setGoogleApiClient(null);
         Log.e(LOG_TAG, "Google Places API connection suspended.");
         }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 10){
+            if(resultCode== RESULT_OK){
+                String result = data.getStringExtra(Pop.EXTRA);
+                Log.e(TAG, "DATA WAS RECEIVED" + result);
+
+            }if(resultCode == RESULT_CANCELED){
+                Log.e(TAG, "DATA WASNT RECEIVED");
+
+            }
         }
+    }
+}

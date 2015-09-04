@@ -47,8 +47,16 @@
 
         <activity
             android:name=".SearchActivity"
-            android:label="@string/title_activity_search" >
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" >
+
+        android:label="@string/title_activity_search" >
         </activity>
+
+        <activity android:name=".Pop"
+            android:theme="@style/AppTheme.CustomTheme"
+            ></activity>
+
+
     </application>
 
 </manifest>
