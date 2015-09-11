@@ -55,6 +55,11 @@ public class PlaceArrayAdapter
     }
 
     @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
     public int getCount() {
         return mResultList.size();
     }

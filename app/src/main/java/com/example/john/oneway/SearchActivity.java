@@ -2,9 +2,15 @@ package com.example.john.oneway;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle; import android.view.View; import android.view.View.OnClickListener;  import android.widget.Button;
+import android.os.Bundle; import android.view.View; import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout; import android.widget.PopupWindow; import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow; import android.widget.TextView;
 
 
 
@@ -70,15 +76,20 @@ private TextView mAttTextView;
 private GoogleApiClient mGoogleApiClient;
     private Spinner areaspinner;
 private PlaceArrayAdapter mPlaceArrayAdapter;
+    private filterAdapter mAdapter;
+    private ArrayList<Driver> mFilterName;
+    private ListView filterList;
 
-private PlaceArrayAdapter mChurchArrayAdapter;
+
+
+    private PlaceArrayAdapter mChurchArrayAdapter;
 private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(new LatLng(43.445667, -79.971781), new LatLng(44.132634, -79.230450
 ));
 
     LinearLayout layoutOfPopup;
     PopupWindow popupMessage;
-    Button mPopupButton, insidePopupButton;
-    TextView popupText;
+    Button mPopupButton;
+
 
 
 //private List<Integer> filterTypes = new ArrayList<Integer>();
@@ -87,6 +98,10 @@ private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(new La
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN|WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+
+
 
 
 
@@ -104,10 +119,7 @@ protected void onCreate(Bundle savedInstanceState) {
     mAutoCompleteTextView2.setThreshold(3);
         mNameTextView = (TextView) findViewById(R.id.name);
         mAddressTextView = (TextView) findViewById(R.id.address);
-        mIdTextView = (TextView) findViewById(R.id.place_id);
-        mPhoneTextView = (TextView) findViewById(R.id.phone);
-        mWebTextView = (TextView) findViewById(R.id.web);
-        mAttTextView = (TextView) findViewById(R.id.att);
+
     mAutoCompleteTextView2.setOnItemClickListener(mAutocompleteClickListener);
     mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
   //  filterTypes.add(Place.TYPE_CHURCH);
@@ -136,9 +148,29 @@ protected void onCreate(Bundle savedInstanceState) {
 
 
 
+    private class filterAdapter extends  ArrayAdapter<Driver> {
+        filterAdapter(ArrayList filterName) {
+
+            super(SearchActivity.this,R.layout.filter_row,R.id.filter_item_name, filterName);
+        }
 
 
-private AdapterView.OnItemClickListener mAutocompleteClickListener
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            //anon class can use constructor of its parents
+            convertView = super.getView(position, convertView, parent);
+            final Driver driver = getItem(position);
+            final TextView filterName =(TextView) convertView.findViewById(R.id.filter_item_name);
+
+            filterName.setText("HI");
+
+            return convertView;
+        }
+
+    }
+
+        private AdapterView.OnItemClickListener mAutocompleteClickListener
         = new AdapterView.OnItemClickListener() {
 @Override
 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -224,7 +256,26 @@ public void onConnectionSuspended(int i) {
         if(requestCode == 10){
             if(resultCode== RESULT_OK){
                 String result = data.getStringExtra(Pop.EXTRA);
-                Log.e(TAG, "DATA WAS RECEIVED" + result);
+                Driver driver = (Driver)data.getSerializableExtra(Pop.EXTRA);
+
+                mFilterName = new ArrayList<Driver>();
+
+                mFilterName.add(new Driver());
+
+
+                mFilterName.get(0).setDenomination(driver.getDenomination());
+
+
+
+
+
+                filterList = (ListView)findViewById(R.id.filters);
+
+
+                mAdapter = new filterAdapter(mFilterName);
+               // filterList.setAdapter(new filterAdapter(mFilterName));
+
+                Log.e(TAG, "DATA WAS RECEIVED" + driver.getDenomination());
 
             }if(resultCode == RESULT_CANCELED){
                 Log.e(TAG, "DATA WASNT RECEIVED");

@@ -80,7 +80,7 @@ public class Pop extends Activity  {
         public View getView(final int position, View convertView, ViewGroup parent) {
 
             convertView = super.getView(position, convertView, parent);
-            Driver driver = getItem(position);
+            final Driver driver = getItem(position);
             final TextView denooName =(TextView) convertView.findViewById(R.id.deno_item_name);
 
             denooName.setText(driver.getDenomination());
@@ -100,7 +100,7 @@ public class Pop extends Activity  {
                         @Override
                         public void onClick(View v) {
                             Intent returnIntent = new Intent();
-                            returnIntent.putExtra(EXTRA,name);
+                            returnIntent.putExtra(EXTRA,driver);
                             setResult(RESULT_OK, returnIntent);
                             finish();
 

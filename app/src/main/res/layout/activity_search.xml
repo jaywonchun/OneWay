@@ -1,5 +1,6 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingBottom="@dimen/activity_vertical_margin"
@@ -8,14 +9,11 @@
                 android:paddingTop="@dimen/activity_vertical_margin"
                 tools:context=".MainActivity">
 
-    <Spinner
-        android:id="@+id/areaspinner"
-        android:layout_width="150dip"
-        android:layout_height="40dip"
-        android:drawSelectorOnTop="true"
-        android:padding="5dip"
-        android:paddingLeft="10dip"/>
+<RelativeLayout
+    android:layout_width="wrap_content"
 
+    android:layout_weight="1.2"
+    android:layout_height="1dp">
     <AutoCompleteTextView
         android:id="@+id/autoCompleteTextView"
         android:layout_width="match_parent"
@@ -30,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
 
         android:hint="Enter your address here"
         android:layout_below="@+id/autoCompleteTextView"/>
@@ -68,46 +66,32 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/name"/>
 
-    <TextView
-        android:id="@+id/place_id"
+</RelativeLayout>
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/address"/>
+        android:layout_height="1dp"
+        android:layout_weight="1.5"
+        >
 
-    <TextView
-        android:id="@+id/phone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/place_id"
-        android:autoLink="phone"/>
 
-    <TextView
-        android:id="@+id/web"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/phone"
-        android:autoLink="web"/>
 
-    <TextView
-        android:id="@+id/att"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:autoLink="web"/>
+<ListView
+    android:id="@+id/filters"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"></ListView>
+
+
+
+        <ImageView
+            android:id="@+id/image1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
 
     <ImageView
         android:id="@+id/poweredBy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/att"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:src="@drawable/powered_by_google_light"/>
@@ -122,12 +106,13 @@
         android:layout_marginBottom="-20dp"
        />
 
+
+    </RelativeLayout>
+
     <Button android:id="@+id/popupbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:text="Show Popup" />
-
-
-</RelativeLayout>
+</LinearLayout>
