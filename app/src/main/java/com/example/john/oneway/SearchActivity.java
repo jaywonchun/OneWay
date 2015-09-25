@@ -35,6 +35,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -49,17 +50,21 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import android.view.ViewGroup.LayoutParams;
 
 
-public class SearchActivity extends FragmentActivity implements
+public class SearchActivity extends FragmentActivity implements Serializable,
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks {
 
  private static final int EDIT_TASK_REQUEST = 10;
+    private static final int EDIT_TIME_REQUEST = 20;
 
     private static final String LOG_TAG = "MainActivity";
 private static final int GOOGLE_API_CLIENT_ID = 0;
@@ -98,11 +103,42 @@ private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(new La
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN|WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+    mFilterName = new ArrayList<Driver>();
+
+    mFilterName.add(new Driver());
+    mFilterName.get(0).setDenomination("Click here to set your denomination");
+
+    mFilterName.add(new Driver());
+
+    mFilterName.get(1).setmTimePicker("set your time");
+    mFilterName.add(new Driver());
+
+    mFilterName.get(2).setDenomination("Click here to set your .............");
 
 
 
 
+    filterList = (ListView)findViewById(R.id.filters);
+    filterList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if (position == 0) {
+                Intent i = new Intent(SearchActivity.this, Pop.class);
+                startActivityForResult(i, EDIT_TASK_REQUEST);
+
+            }
+                if(position == 1){
+                    Intent i = new Intent(SearchActivity.this, TimeActivity.class);
+                startActivityForResult(i, EDIT_TIME_REQUEST);
+            }
+
+        }
+    });
+
+    mAdapter = new filterAdapter(mFilterName);
+    filterList.setAdapter(new filterAdapter(mFilterName));
 
 
     mGoogleApiClient = new GoogleApiClient.Builder(SearchActivity.this)
@@ -134,16 +170,7 @@ protected void onCreate(Bundle savedInstanceState) {
 
         BOUNDS_MOUNTAIN_VIEW, null);
         mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
-    mPopupButton = (Button) findViewById(R.id.popupbutton);
 
-    mPopupButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(SearchActivity.this, Pop.class);
-                startActivityForResult(i, EDIT_TASK_REQUEST);
-
-            }
-        });
         }
 
 
@@ -151,7 +178,7 @@ protected void onCreate(Bundle savedInstanceState) {
     private class filterAdapter extends  ArrayAdapter<Driver> {
         filterAdapter(ArrayList filterName) {
 
-            super(SearchActivity.this,R.layout.filter_row,R.id.filter_item_name, filterName);
+            super(SearchActivity.this, R.layout.filter_row, R.id.filter_item_name, filterName);
         }
 
 
@@ -161,9 +188,25 @@ protected void onCreate(Bundle savedInstanceState) {
             //anon class can use constructor of its parents
             convertView = super.getView(position, convertView, parent);
             final Driver driver = getItem(position);
-            final TextView filterName =(TextView) convertView.findViewById(R.id.filter_item_name);
+            if(position ==0) {
+                 TextView filterName = (TextView) convertView.findViewById(R.id.filter_item_name);
 
-            filterName.setText("HI");
+                filterName.setText(driver.getDenomination());
+            }
+
+            if (position ==1) {
+                  TextView filterName = (TextView) convertView.findViewById(R.id.filter_item_name);
+         //       filterName.setText(driver.getDenomination()); works
+                filterName.setText(String.valueOf(driver.getmTimePicker()));
+              //  mFilterName.get(1).setmTimePicker(String.valueOf(hi));
+
+
+                //make sure timepicker is formatted
+
+                //   filterName.setText((CharSequence) driver.getmTimePicker());
+            }
+
+          //  filterName.setText((CharSequence) driver.getmTimePicker());
 
             return convertView;
         }
@@ -254,33 +297,43 @@ public void onConnectionSuspended(int i) {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 10){
-            if(resultCode== RESULT_OK){
-                String result = data.getStringExtra(Pop.EXTRA);
-                Driver driver = (Driver)data.getSerializableExtra(Pop.EXTRA);
-
-                mFilterName = new ArrayList<Driver>();
-
-                mFilterName.add(new Driver());
-
-
+            if(resultCode== RESULT_OK) {
+                //String result = data.getStringExtra(Pop.EXTRA);
+                Driver driver = (Driver) data.getSerializableExtra(Pop.EXTRA);
                 mFilterName.get(0).setDenomination(driver.getDenomination());
+                Log.i(TAG, "denomination is" + driver.getDenomination());
 
-
-
-
-
-                filterList = (ListView)findViewById(R.id.filters);
-
-
-                mAdapter = new filterAdapter(mFilterName);
-               // filterList.setAdapter(new filterAdapter(mFilterName));
-
+                mAdapter.setNotifyOnChange(true);
+                filterList.setAdapter(new filterAdapter(mFilterName));
                 Log.e(TAG, "DATA WAS RECEIVED" + driver.getDenomination());
 
+            } }
+
+             if (requestCode == 20) {
+                 if(resultCode== RESULT_OK){
+                Driver driver =(Driver) data.getSerializableExtra(TimeActivity.EXTRA);
+            //     TimePicker timePicker = driver.getmTimePicker();
+              //  mFilterName.get(1).setDenomination("hi");
+
+                     mFilterName.get(1).setmTimePicker(String.valueOf(driver.getmTimePicker()));
+
+                 Log.i(TAG, "time is" + driver.getmTimePicker());
+
+                 mAdapter.setNotifyOnChange(true);
+                 filterList.setAdapter(new filterAdapter(mFilterName));
+
+
+
+             }
+
+
+                //  filterList = (ListView)findViewById(R.id.filters);
+           //     mAdapter = new filterAdapter(mFilterName);
+            //   filterList.setAdapter(new filterAdapter(mFilterName));
             }if(resultCode == RESULT_CANCELED){
                 Log.e(TAG, "DATA WASNT RECEIVED");
 
             }
         }
-    }
+
 }
