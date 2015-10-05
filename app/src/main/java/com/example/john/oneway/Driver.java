@@ -22,14 +22,17 @@ public class Driver implements Serializable {
         return mTimePicker;
     }
 
-    public void setmTimePicker(String timePicker) {mTimePicker = timePicker;}
+    public String setmTimePicker(String timePicker) {mTimePicker = timePicker;
+        return timePicker;
+    }
 
     public String getDenomination() {
         return mDenomination;
     }
 
-    public void setDenomination(String denomination) {
+    public String setDenomination(String denomination) {
         mDenomination = denomination;
+        return denomination;
     }
 
     public boolean isChecked() {

@@ -1,7 +1,9 @@
 package com.example.john.oneway;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle; import android.view.View; import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -69,8 +71,12 @@ public class SearchActivity extends FragmentActivity implements Serializable,
     private static final String LOG_TAG = "MainActivity";
 private static final int GOOGLE_API_CLIENT_ID = 0;
     public static final String TAG = SearchActivity.class.getSimpleName();
+    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String denominationName = "denoKey";
+    public static final String selectedTime = "timeKey";
 
-private AutoCompleteTextView mAutocompleteTextView;
+
+    private AutoCompleteTextView mAutocompleteTextView;
 private AutoCompleteTextView mAutoCompleteTextView2;
 private TextView mNameTextView;
 private TextView mAddressTextView;
@@ -93,8 +99,8 @@ private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(new La
 
     LinearLayout layoutOfPopup;
     PopupWindow popupMessage;
-    Button mPopupButton;
-
+    Button mSave;
+    SharedPreferences sharedpreferences;
 
 
 //private List<Integer> filterTypes = new ArrayList<Integer>();
@@ -105,19 +111,69 @@ protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_search);
     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-    mFilterName = new ArrayList<Driver>();
-
-    mFilterName.add(new Driver());
-    mFilterName.get(0).setDenomination("Click here to set your denomination");
-
-    mFilterName.add(new Driver());
-
-    mFilterName.get(1).setmTimePicker("set your time");
-    mFilterName.add(new Driver());
-
-    mFilterName.get(2).setDenomination("Click here to set your .............");
+    sharedpreferences = getSharedPreferences(MyPREFERENCES,
+            Context.MODE_PRIVATE);
 
 
+     if (sharedpreferences.contains(denominationName ) && (!sharedpreferences.contains(selectedTime))) {
+
+         sharedpreferences.getString(denominationName, "");
+
+
+         mFilterName = new ArrayList<Driver>();
+         mFilterName.add(new Driver());
+
+         mFilterName.get(0).setDenomination(sharedpreferences.getString(denominationName, ""));
+         Log.i(TAG, "test2" + denominationName);
+
+         mFilterName.add(new Driver());
+        mFilterName.get(1).setmTimePicker("please select your time");
+
+
+     }else if (sharedpreferences.contains(selectedTime) && (!sharedpreferences.contains(denominationName))  ) {
+         mFilterName = new ArrayList<Driver>();
+         mFilterName.add(new Driver());
+         mFilterName.get(0).setDenomination("hi");
+
+         sharedpreferences.getString(selectedTime, "");
+
+         mFilterName.add(new Driver());
+
+         mFilterName.get(1).setmTimePicker(sharedpreferences.getString(selectedTime, ""));
+         Log.i(TAG, "test2" + selectedTime);
+     }else if (sharedpreferences.contains(denominationName) && (sharedpreferences.contains(selectedTime))) {
+
+         sharedpreferences.getString(denominationName, "");
+
+
+         mFilterName = new ArrayList<Driver>();
+         mFilterName.add(new Driver());
+
+         mFilterName.get(0).setDenomination(sharedpreferences.getString(denominationName, ""));
+
+
+         sharedpreferences.getString(selectedTime, "");
+
+         mFilterName.add(new Driver());
+         mFilterName.get(1).setmTimePicker(sharedpreferences.getString(selectedTime, ""));
+
+     }else {
+
+         //insert rest here !!! position 2 and 3
+
+
+         mFilterName = new ArrayList<Driver>();
+
+         mFilterName.add(new Driver());
+         mFilterName.get(0).setDenomination("hi");
+
+         mFilterName.add(new Driver());
+         mFilterName.get(1).setmTimePicker("set your time");
+
+         mFilterName.add(new Driver());
+         mFilterName.get(2).setDenomination("Click here to set your .............");
+
+     }
 
 
     filterList = (ListView)findViewById(R.id.filters);
@@ -299,19 +355,36 @@ public void onConnectionSuspended(int i) {
         if(requestCode == 10){
             if(resultCode== RESULT_OK) {
                 //String result = data.getStringExtra(Pop.EXTRA);
-                Driver driver = (Driver) data.getSerializableExtra(Pop.EXTRA);
-                mFilterName.get(0).setDenomination(driver.getDenomination());
+                final Driver driver = (Driver) data.getSerializableExtra(Pop.EXTRA);
+               mFilterName.get(0).setDenomination(driver.getDenomination());
                 Log.i(TAG, "denomination is" + driver.getDenomination());
 
                 mAdapter.setNotifyOnChange(true);
                 filterList.setAdapter(new filterAdapter(mFilterName));
                 Log.e(TAG, "DATA WAS RECEIVED" + driver.getDenomination());
+                mSave =(Button) findViewById(R.id.pref_save_button);
 
+                mSave.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                      //  Log.e(TAG, "Button!!!" + d);
+
+                        String x =      mFilterName.get(0).setDenomination(driver.getDenomination());
+
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putString(denominationName, x);
+                        Log.e(TAG, "test3" + x);
+                        mAdapter.setNotifyOnChange(true);
+                        filterList.setAdapter(new filterAdapter(mFilterName));
+                        editor.commit();
+                    }
+                });
             } }
 
              if (requestCode == 20) {
                  if(resultCode== RESULT_OK){
-                Driver driver =(Driver) data.getSerializableExtra(TimeActivity.EXTRA);
+                final Driver driver =(Driver) data.getSerializableExtra(TimeActivity.EXTRA);
             //     TimePicker timePicker = driver.getmTimePicker();
               //  mFilterName.get(1).setDenomination("hi");
 
@@ -321,7 +394,62 @@ public void onConnectionSuspended(int i) {
 
                  mAdapter.setNotifyOnChange(true);
                  filterList.setAdapter(new filterAdapter(mFilterName));
+                     mSave =(Button) findViewById(R.id.pref_save_button);
 
+                mSave.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+
+                       String y=   mFilterName.get(1).setmTimePicker(String.valueOf(driver.getmTimePicker()));
+
+
+
+
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putString(selectedTime, y);
+
+                        Log.e(TAG, "test5" + y);
+
+                        mAdapter.setNotifyOnChange(true);
+                        filterList.setAdapter(new filterAdapter(mFilterName));
+                        editor.commit();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    }
+                });
 
 
              }

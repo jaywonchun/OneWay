@@ -43,7 +43,7 @@ public class TimeActivity extends AppCompatActivity implements Serializable {
 
         Driver driver = new Driver();
 
-        driver.setmTimePicker("Service time is: " + String.valueOf(timePicker.getCurrentHour()) + ":" + (String.valueOf(timePicker.getCurrentMinute())));
+        driver.setmTimePicker("Service time is: " + String.valueOf(timePicker.getCurrentHour()) + ":" + (String.valueOf(formatter.format(timePicker.getCurrentMinute()))));
 
         Intent returnIntent = new Intent();
 
