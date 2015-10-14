@@ -1,4 +1,4 @@
-package com.example.john.oneway;
+package com.example.john.oneway.Filter;
 
 import android.location.Location;
 

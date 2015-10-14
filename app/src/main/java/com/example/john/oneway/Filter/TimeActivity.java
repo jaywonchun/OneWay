@@ -1,4 +1,4 @@
-package com.example.john.oneway;
+package com.example.john.oneway.Filter;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.example.john.oneway.Driver;
+import com.example.john.oneway.R;
+
 public class TimeActivity extends AppCompatActivity implements Serializable {
     public static final String EXTRA = "TimeExtra";
 

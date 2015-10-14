@@ -1,11 +1,7 @@
-package com.example.john.oneway;
+package com.example.john.oneway.Controller;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.location.Location;
-import android.os.Parcelable;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,6 +12,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.john.oneway.Filter.SearchActivity;
+import com.example.john.oneway.LoginPage.LoginActivity;
+import com.example.john.oneway.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -25,14 +24,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseUser;
-
-import java.io.Serializable;
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity implements  GoogleApiClient.OnConnectionFailedListener {
@@ -61,6 +56,7 @@ private GoogleApiClient mGoogleApiClient;
 
 
         ParseUser currentUser = ParseUser.getCurrentUser();
+       //        currentUser.put();
         if(currentUser == null) {
             navigateToLogin();
         }

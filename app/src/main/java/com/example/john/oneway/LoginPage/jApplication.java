@@ -1,4 +1,4 @@
-package com.example.john.oneway;
+package com.example.john.oneway.LoginPage;
 
 import android.app.Application;
 

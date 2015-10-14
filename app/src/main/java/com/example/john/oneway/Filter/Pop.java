@@ -1,25 +1,22 @@
-package com.example.john.oneway;
+package com.example.john.oneway.Filter;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.Checkable;
-import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.example.john.oneway.Driver;
+import com.example.john.oneway.R;
+
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by John on 28/08/2015.

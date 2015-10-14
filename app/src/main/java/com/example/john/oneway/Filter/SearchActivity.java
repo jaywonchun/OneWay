@@ -1,64 +1,49 @@
-package com.example.john.oneway;
+package com.example.john.oneway.Filter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle; import android.view.View; import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow; import android.widget.TextView;
 
 
-
-
-
-
-
-
-import android.app.Activity;
-import android.content.DialogInterface;
-import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
-import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.john.oneway.Driver;
+import com.example.john.oneway.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
-import com.google.android.gms.location.places.PlaceTypes;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import android.view.ViewGroup.LayoutParams;
 
 
 public class SearchActivity extends FragmentActivity implements Serializable,
@@ -71,9 +56,6 @@ public class SearchActivity extends FragmentActivity implements Serializable,
     private static final String LOG_TAG = "MainActivity";
 private static final int GOOGLE_API_CLIENT_ID = 0;
     public static final String TAG = SearchActivity.class.getSimpleName();
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    public static final String denominationName = "denoKey";
-    public static final String selectedTime = "timeKey";
 
 
     private AutoCompleteTextView mAutocompleteTextView;
@@ -93,6 +75,11 @@ private PlaceArrayAdapter mPlaceArrayAdapter;
 
 
 
+    ParseObject filter;
+     String filterID ;
+
+
+
     private PlaceArrayAdapter mChurchArrayAdapter;
 private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(new LatLng(43.445667, -79.971781), new LatLng(44.132634, -79.230450
 ));
@@ -101,79 +88,74 @@ private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(new La
     PopupWindow popupMessage;
     Button mSave;
     SharedPreferences sharedpreferences;
+    String denoName;
+    String serviceTime;
+    ArrayList<String> mDenoName;
 
 
 //private List<Integer> filterTypes = new ArrayList<Integer>();
 
 @Override
 protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_search);
+//Log.e(TAG, "current user is" + currentUser.getObjectId());
     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-    sharedpreferences = getSharedPreferences(MyPREFERENCES,
-            Context.MODE_PRIVATE);
+
+    String user = ParseUser.getCurrentUser().getObjectId();
+    ParseUser parseUser = ParseUser.getCurrentUser();
 
 
-     if (sharedpreferences.contains(denominationName ) && (!sharedpreferences.contains(selectedTime))) {
-
-         sharedpreferences.getString(denominationName, "");
-
-
-         mFilterName = new ArrayList<Driver>();
-         mFilterName.add(new Driver());
-
-         mFilterName.get(0).setDenomination(sharedpreferences.getString(denominationName, ""));
-         Log.i(TAG, "test2" + denominationName);
-
-         mFilterName.add(new Driver());
-        mFilterName.get(1).setmTimePicker("please select your time");
+    ParseQuery<ParseUser> query = ParseQuery.getQuery("User");
+    //query.whereExists("namezz");
 
 
-     }else if (sharedpreferences.contains(selectedTime) && (!sharedpreferences.contains(denominationName))  ) {
-         mFilterName = new ArrayList<Driver>();
-         mFilterName.add(new Driver());
-         mFilterName.get(0).setDenomination("hi");
 
-         sharedpreferences.getString(selectedTime, "");
+        query.getInBackground(user, new GetCallback<ParseUser>() {
+                    @Override
+                    public void done(ParseUser parseUser, ParseException e) {
 
-         mFilterName.add(new Driver());
+                        parseUser = ParseUser.getCurrentUser();
+                        //   mDenoName= new ArrayList<String>();
+                        Log.e(TAG, "current user is is" + parseUser);
 
-         mFilterName.get(1).setmTimePicker(sharedpreferences.getString(selectedTime, ""));
-         Log.i(TAG, "test2" + selectedTime);
-     }else if (sharedpreferences.contains(denominationName) && (sharedpreferences.contains(selectedTime))) {
+                        //  mDenoName.add(denoName);
+                        //  mDenoName.add(serviceTIme);
 
-         sharedpreferences.getString(denominationName, "");
-
-
-         mFilterName = new ArrayList<Driver>();
-         mFilterName.add(new Driver());
-
-         mFilterName.get(0).setDenomination(sharedpreferences.getString(denominationName, ""));
+                        denoName = parseUser.getString("namezz");
+                        serviceTime = parseUser.getString("serviceTime");
 
 
-         sharedpreferences.getString(selectedTime, "");
 
-         mFilterName.add(new Driver());
-         mFilterName.get(1).setmTimePicker(sharedpreferences.getString(selectedTime, ""));
-
-     }else {
-
-         //insert rest here !!! position 2 and 3
+                        Log.e(TAG, "time is" + serviceTime);
+                        Log.e(TAG, "namezzz is" + denoName);
 
 
-         mFilterName = new ArrayList<Driver>();
+                    }
 
-         mFilterName.add(new Driver());
-         mFilterName.get(0).setDenomination("hi");
+                }
 
-         mFilterName.add(new Driver());
-         mFilterName.get(1).setmTimePicker("set your time");
+        );
+        mFilterName = new ArrayList<Driver>();
 
-         mFilterName.add(new Driver());
-         mFilterName.get(2).setDenomination("Click here to set your .............");
+        denoName = parseUser.getString("namezz");
+        mFilterName.add(new Driver());
+        if(denoName == null) {
+            mFilterName.get(0).setDenomination("Select denomination ");
+        }else {
+        mFilterName.get(0).setDenomination(denoName)
+        ;}
 
-     }
+       serviceTime = parseUser.getString("serviceTime");
+    mFilterName.add(new Driver());
+        if(serviceTime == null) {
+            mFilterName.get(1).setmTimePicker("select the service time");
+        }else {
+        mFilterName.get(1).setmTimePicker(serviceTime);}
+
+
+
 
 
     filterList = (ListView)findViewById(R.id.filters);
@@ -185,8 +167,8 @@ protected void onCreate(Bundle savedInstanceState) {
                 startActivityForResult(i, EDIT_TASK_REQUEST);
 
             }
-                if(position == 1){
-                    Intent i = new Intent(SearchActivity.this, TimeActivity.class);
+            if(position == 1){
+                Intent i = new Intent(SearchActivity.this, TimeActivity.class);
                 startActivityForResult(i, EDIT_TIME_REQUEST);
             }
 
@@ -195,6 +177,8 @@ protected void onCreate(Bundle savedInstanceState) {
 
     mAdapter = new filterAdapter(mFilterName);
     filterList.setAdapter(new filterAdapter(mFilterName));
+
+
 
 
     mGoogleApiClient = new GoogleApiClient.Builder(SearchActivity.this)
@@ -231,6 +215,7 @@ protected void onCreate(Bundle savedInstanceState) {
 
 
 
+
     private class filterAdapter extends  ArrayAdapter<Driver> {
         filterAdapter(ArrayList filterName) {
 
@@ -250,11 +235,11 @@ protected void onCreate(Bundle savedInstanceState) {
                 filterName.setText(driver.getDenomination());
             }
 
-            if (position ==1) {
+            if (position ==1)
+            {
                   TextView filterName = (TextView) convertView.findViewById(R.id.filter_item_name);
-         //       filterName.setText(driver.getDenomination()); works
-                filterName.setText(String.valueOf(driver.getmTimePicker()));
-              //  mFilterName.get(1).setmTimePicker(String.valueOf(hi));
+                filterName.setText(driver.getmTimePicker());
+
 
 
                 //make sure timepicker is formatted
@@ -368,16 +353,18 @@ public void onConnectionSuspended(int i) {
                     @Override
                     public void onClick(View v) {
 
-                      //  Log.e(TAG, "Button!!!" + d);
+                      //  filter = new ParseObject("denominationName");
+                       // filter.put("namez", driver.getDenomination());
 
-                        String x =      mFilterName.get(0).setDenomination(driver.getDenomination());
-
-                        SharedPreferences.Editor editor = sharedpreferences.edit();
-                        editor.putString(denominationName, x);
-                        Log.e(TAG, "test3" + x);
+                        ParseUser currentUser = ParseUser.getCurrentUser();
+                        ParseUser user;
+                        user = currentUser;
+                        Log.e(TAG, "current user is" + user.getObjectId());
+                        user.put("namezz", driver.getDenomination());
+                        user.saveInBackground();
                         mAdapter.setNotifyOnChange(true);
                         filterList.setAdapter(new filterAdapter(mFilterName));
-                        editor.commit();
+
                     }
                 });
             } }
@@ -389,8 +376,7 @@ public void onConnectionSuspended(int i) {
               //  mFilterName.get(1).setDenomination("hi");
 
                      mFilterName.get(1).setmTimePicker(String.valueOf(driver.getmTimePicker()));
-
-                 Log.i(TAG, "time is" + driver.getmTimePicker());
+                 Log.i(TAG, "timesss is" + driver.getmTimePicker());
 
                  mAdapter.setNotifyOnChange(true);
                  filterList.setAdapter(new filterAdapter(mFilterName));
@@ -401,44 +387,19 @@ public void onConnectionSuspended(int i) {
                     public void onClick(View v) {
 
 
-                       String y=   mFilterName.get(1).setmTimePicker(String.valueOf(driver.getmTimePicker()));
 
+                    //    ParseObject filter2 = new ParseObject("selectedTime");
+                      //  filter2.put("time",   mFilterName.get(1).setmTimePicker(String.valueOf(driver.getmTimePicker())));
+                      //  filter2.saveInBackground();
 
-
-
-                        SharedPreferences.Editor editor = sharedpreferences.edit();
-                        editor.putString(selectedTime, y);
-
-                        Log.e(TAG, "test5" + y);
-
+                        ParseUser currentUser = ParseUser.getCurrentUser();
+                        ParseUser user;
+                        user = currentUser;
+                        Log.e(TAG, "current user is" + user.getObjectId());
+                        user.put("serviceTime", driver.getmTimePicker());
+                        user.saveInBackground();
                         mAdapter.setNotifyOnChange(true);
                         filterList.setAdapter(new filterAdapter(mFilterName));
-                        editor.commit();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

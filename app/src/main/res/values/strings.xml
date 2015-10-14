@@ -24,6 +24,7 @@
     <string name="error_title">Opps! Sorry!</string>
     <string name="error_message">There was an error. Please try again</string>
     <string name="title_activity_time">TimeActivity</string>
+    <string name="title_activity_passenger">Passenger</string>
 
 
 </resources>

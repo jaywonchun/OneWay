@@ -1,10 +1,12 @@
-package com.example.john.oneway;
+package com.example.john.oneway.LoginPage;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
+
+import com.example.john.oneway.R;
 
 /**
  * Created by John on 19/08/2015.
