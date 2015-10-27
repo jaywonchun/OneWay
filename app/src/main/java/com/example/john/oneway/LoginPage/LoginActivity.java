@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.john.oneway.Controller.MainActivity;
+import com.example.john.oneway.Controller.Passenger;
 import com.example.john.oneway.R;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -66,7 +67,7 @@ public class LoginActivity extends ActionBarActivity {
                             if (e == null){
 
                                 String typez = parseUser.getString("type");
-                            if (typez.equals("Driver")) {
+
 
 
                                 //success
@@ -74,14 +75,7 @@ public class LoginActivity extends ActionBarActivity {
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(intent);
-                            }
-                                else if (typez.equals("passenger")){
 
-                                Intent intent = new Intent(LoginActivity.this, Passenger.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
-                            }
                            }
                             else {
                                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);

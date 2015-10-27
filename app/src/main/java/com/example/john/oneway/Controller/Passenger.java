@@ -1,4 +1,4 @@
-package com.example.john.oneway.LoginPage;
+package com.example.john.oneway.Controller;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

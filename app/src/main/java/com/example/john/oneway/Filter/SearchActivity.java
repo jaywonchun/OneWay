@@ -3,10 +3,15 @@ package com.example.john.oneway.Filter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Bundle; import android.view.View; import android.view.View.OnClickListener;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.preference.PreferenceManager;
+import android.view.View; import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow; import android.widget.TextView;
@@ -21,6 +26,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.john.oneway.Controller.MainActivity;
 import com.example.john.oneway.Driver;
 import com.example.john.oneway.R;
 import com.google.android.gms.common.ConnectionResult;
@@ -57,8 +63,8 @@ public class SearchActivity extends FragmentActivity implements Serializable,
 private static final int GOOGLE_API_CLIENT_ID = 0;
     public static final String TAG = SearchActivity.class.getSimpleName();
 
-
-    private AutoCompleteTextView mAutocompleteTextView;
+   public static CheckBox checkBoxAddress;
+    public static AutoCompleteTextView mAutocompleteTextView;
 private AutoCompleteTextView mAutoCompleteTextView2;
 private TextView mNameTextView;
 private TextView mAddressTextView;
@@ -72,8 +78,9 @@ private PlaceArrayAdapter mPlaceArrayAdapter;
     private filterAdapter mAdapter;
     private ArrayList<Driver> mFilterName;
     private ListView filterList;
+    public static final String EXTRA = "userPreferenceExtra";
 
-
+Button mSave2;
 
     ParseObject filter;
      String filterID ;
@@ -89,6 +96,8 @@ private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(new La
     Button mSave;
     SharedPreferences sharedpreferences;
     String denoName;
+    String homeAddress;
+    String churchAddress;
     String serviceTime;
     ArrayList<String> mDenoName;
 
@@ -103,8 +112,63 @@ protected void onCreate(Bundle savedInstanceState) {
     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
 
+
+
+    SharedPreferences settings = getSharedPreferences("mysettings", 0);
+    final SharedPreferences.Editor editor = settings.edit();
+
+
+
     String user = ParseUser.getCurrentUser().getObjectId();
     ParseUser parseUser = ParseUser.getCurrentUser();
+
+
+
+    mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id .autoCompleteTextView);
+    mAutocompleteTextView.setThreshold(3);
+   checkBoxAddress = (CheckBox)findViewById(R.id.addressCheckBox);
+    checkBoxAddress.setChecked(settings.getBoolean("checkBoxState", false));
+    if(checkBoxAddress.isChecked()) {
+        mAutocompleteTextView.setEnabled(false);
+    };
+
+//http://stackoverflow.com/questions/9308267/passing-a-simple-variable-value-for-use-in-another-class-in-android
+
+
+    mAutoCompleteTextView2= (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
+    mAutoCompleteTextView2.setThreshold(3);
+    //mAutocompleteTextView.setFocusable(false);
+checkBoxAddress.setOnClickListener(new OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        //    mAutocompleteTextView.setFocusable(true);
+        if(checkBoxAddress.isChecked()) {
+            mAutocompleteTextView.setEnabled(false);
+            Log.e(TAG, "I'm getting clicked and its false!");
+
+            boolean checkBoxValue = true;
+            editor.putBoolean("checkBoxState", checkBoxValue);
+            editor.commit();;
+
+
+
+        }else {
+            mAutocompleteTextView.setEnabled(true);
+
+            Log.e(TAG, "I'm getting clicked and its true!");
+
+            boolean checkBoxValue = false;
+            editor.putBoolean("checkBoxState", checkBoxValue);
+            editor.commit();;
+
+
+
+        }
+      //  Log.e(TAG, "I'm getting clicked!");
+
+
+    }
+});
 
 
     ParseQuery<ParseUser> query = ParseQuery.getQuery("User");
@@ -125,7 +189,8 @@ protected void onCreate(Bundle savedInstanceState) {
 
                         denoName = parseUser.getString("namezz");
                         serviceTime = parseUser.getString("serviceTime");
-
+                        homeAddress = parseUser.getString("HomeAddress");
+                        churchAddress = parseUser.getString("churchAddress");
 
 
                         Log.e(TAG, "time is" + serviceTime);
@@ -154,6 +219,20 @@ protected void onCreate(Bundle savedInstanceState) {
         }else {
         mFilterName.get(1).setmTimePicker(serviceTime);}
 
+    homeAddress = parseUser.getString("HomeAddress");
+    if(homeAddress == null) {
+            mAutocompleteTextView.setText("Please select your home address");
+    }else {
+        mAutocompleteTextView.setText(homeAddress);
+
+        churchAddress = parseUser.getString("churchAddress");
+        if(churchAddress == null) {
+            mAutoCompleteTextView2.setText("Please select your church address");
+        }else {
+            mAutoCompleteTextView2.setText(churchAddress);
+        }
+
+    }
 
 
 
@@ -167,7 +246,7 @@ protected void onCreate(Bundle savedInstanceState) {
                 startActivityForResult(i, EDIT_TASK_REQUEST);
 
             }
-            if(position == 1){
+            if (position == 1) {
                 Intent i = new Intent(SearchActivity.this, TimeActivity.class);
                 startActivityForResult(i, EDIT_TIME_REQUEST);
             }
@@ -187,21 +266,22 @@ protected void onCreate(Bundle savedInstanceState) {
             .addConnectionCallbacks(this)
             .build();
 
-      mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id .autoCompleteTextView);
-        mAutocompleteTextView.setThreshold(3);
 
 
-    mAutoCompleteTextView2= (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
-    mAutoCompleteTextView2.setThreshold(3);
+
+
+
         mNameTextView = (TextView) findViewById(R.id.name);
-        mAddressTextView = (TextView) findViewById(R.id.address);
+    // mAddressTextView = (TextView) findViewById(R.id.address);
 
-    mAutoCompleteTextView2.setOnItemClickListener(mAutocompleteClickListener);
     mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
-  //  filterTypes.add(Place.TYPE_CHURCH);
+    mAutoCompleteTextView2.setOnItemClickListener(mAutocompleteClickListener2);
+
+
+    //  filterTypes.add(Place.TYPE_CHURCH);
 
     mChurchArrayAdapter= new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,BOUNDS_MOUNTAIN_VIEW, null);
-    mAutoCompleteTextView2.setAdapter(mChurchArrayAdapter);
+    mAutoCompleteTextView2.setAdapter(mPlaceArrayAdapter);
 
 
 
@@ -210,9 +290,29 @@ protected void onCreate(Bundle savedInstanceState) {
 
         BOUNDS_MOUNTAIN_VIEW, null);
         mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
+        mAutoCompleteTextView2.setAdapter(mPlaceArrayAdapter);
+
+    mSave =(Button) findViewById(R.id.pref_save_button);
+
+    mSave.setOnClickListener(new OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(SearchActivity.this, MainActivity.class);
+        if(mAutocompleteTextView.isEnabled()) {
+            intent.putExtra(SearchActivity.EXTRA, "true");
 
         }
+        if(!mAutocompleteTextView.isEnabled()) {
+            intent.putExtra(SearchActivity.EXTRA, "false");
 
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+
+    }
+});
+        }
 
 
 
@@ -254,32 +354,65 @@ protected void onCreate(Bundle savedInstanceState) {
 
     }
 
-        private AdapterView.OnItemClickListener mAutocompleteClickListener
-        = new AdapterView.OnItemClickListener() {
-@Override
-public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    if (mAutoCompleteTextView2.isSelected()) {
-        final PlaceArrayAdapter.PlaceAutocomplete item2 = mChurchArrayAdapter.getItem(position);
-        final String placeId2 = String.valueOf(item2.placeId);
-        Log.i(LOG_TAG, "Selected: " + item2.description);
-        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
-                .getPlaceById(mGoogleApiClient, placeId2);
-        placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
-        Log.i(LOG_TAG, "Fetching details for ID: " + item2.placeId);
-    } else if (mAutocompleteTextView.isSelected()){
 
-        final PlaceArrayAdapter.PlaceAutocomplete item = mPlaceArrayAdapter.getItem(position);
-        final String placeId = String.valueOf(item.placeId);
-        Log.i(LOG_TAG, "Selected: " + item.description);
-        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
-                .getPlaceById(mGoogleApiClient, placeId);
-        placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
-        Log.i(LOG_TAG, "Fetching details for ID: " + item.placeId);
 
-    }
-}
+    private AdapterView.OnItemClickListener mAutocompleteClickListener
+            = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-};
+            Log.e(TAG, "i'm selected inside");
+            Log.e(TAG,"My position is" + position);
+            final PlaceArrayAdapter.PlaceAutocomplete item= mPlaceArrayAdapter.getItem(position);
+            final String placeId = String.valueOf(item.placeId);
+            Log.i(LOG_TAG, "Selected: " + item.description);
+            PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
+                    .getPlaceById(mGoogleApiClient, placeId);
+            placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+            Log.i(LOG_TAG, "Fetching details for ID: " + item.placeId);
+
+        }
+
+    };
+
+
+
+    private AdapterView.OnItemClickListener mAutocompleteClickListener2
+            = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            Log.e(TAG, "i'm selected inside");
+            Log.e(TAG,"My position is" + position);
+            final PlaceArrayAdapter.PlaceAutocomplete item= mPlaceArrayAdapter.getItem(position);
+            final String placeId2 = String.valueOf(item.placeId);
+            Log.i(LOG_TAG, "Selected: " + item.description);
+            PendingResult<PlaceBuffer> placeResult2 = Places.GeoDataApi
+                    .getPlaceById(mGoogleApiClient, placeId2);
+            placeResult2.setResultCallback(mUpdatePlaceDetailsCallback2);
+            Log.i(LOG_TAG, "Fetching details for ID: " + item.placeId);
+
+        }
+
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -294,19 +427,57 @@ public void onResult(PlaceBuffer places) {
         return;
         }
 // Selecting the first object buffer.
-final Place place = places.get(0);
+        final Place place = places.get(0);
         CharSequence attributions = places.getAttributions();
 
-        mNameTextView.setText(Html.fromHtml(place.getName() + ""));
-        mAddressTextView.setText(Html.fromHtml(place.getAddress() + ""));
-        mIdTextView.setText(Html.fromHtml(place.getId() + ""));
-        mPhoneTextView.setText(Html.fromHtml(place.getPhoneNumber() + ""));
-        mWebTextView.setText(place.getWebsiteUri() + "");
-        if (attributions != null) {
-        mAttTextView.setText(Html.fromHtml(attributions.toString()));
-        }
+
+
+
+
+    ParseUser currentUser = ParseUser.getCurrentUser();
+    ParseUser user;
+    user = currentUser;
+    Log.e(TAG, "current home address is" + place.getAddress());
+    user.put("HomeAddress", place.getAddress());
+    user.put("latitude", place.getLatLng().latitude);
+    user.put("longitude", place.getLatLng().longitude);
+    user.saveInBackground();
+
+
+  //  Intent intent = new Intent(SearchActivity.this, MainActivity.class);
+   // intent.putExtra(SearchActivity.EXTRA, String.valueOf(place.getLatLng()));
+   // startActivity(intent);
+//Log.e(TAG, "take a sip"  + String.valueOf(place.getLatLng()));
         }
         };
+
+
+    private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback2
+            = new ResultCallback<PlaceBuffer>() {
+        @Override
+        public void onResult(PlaceBuffer places) {
+            if (!places.getStatus().isSuccess()) {
+                Log.e(LOG_TAG, "Place query did not complete. Error: " +
+                        places.getStatus().toString());
+                return;
+            }
+// Selecting the first object buffer.
+            final Place place = places.get(0);
+            CharSequence attributions = places.getAttributions();
+
+
+
+
+
+            ParseUser currentUser = ParseUser.getCurrentUser();
+            ParseUser user;
+            user = currentUser;
+            Log.e(TAG, "current church address is" + place.getAddress());
+            user.put("churchAddress", place.getAddress());
+            user.saveInBackground();
+
+        }
+    };
 
 @Override
 public void onConnected(Bundle bundle) {
@@ -365,6 +536,14 @@ public void onConnectionSuspended(int i) {
                         mAdapter.setNotifyOnChange(true);
                         filterList.setAdapter(new filterAdapter(mFilterName));
 
+                        Intent intent = new Intent(SearchActivity.this, MainActivity.class);
+                        if(mAutocompleteTextView.isEnabled()) {
+                            intent.putExtra(SearchActivity.EXTRA, "true");
+
+                        }
+
+                        startActivity(intent);
+
                     }
                 });
             } }
@@ -402,9 +581,13 @@ public void onConnectionSuspended(int i) {
                         filterList.setAdapter(new filterAdapter(mFilterName));
 
 
+                        Intent intent = new Intent(SearchActivity.this, MainActivity.class);
+                        if(mAutocompleteTextView.isEnabled()) {
+                            intent.putExtra(SearchActivity.EXTRA, "true");
 
+                        }
 
-
+                        startActivity(intent);
 
 
 
@@ -419,10 +602,14 @@ public void onConnectionSuspended(int i) {
                 //  filterList = (ListView)findViewById(R.id.filters);
            //     mAdapter = new filterAdapter(mFilterName);
             //   filterList.setAdapter(new filterAdapter(mFilterName));
-            }if(resultCode == RESULT_CANCELED){
+            }
+        if(resultCode == RESULT_CANCELED){
                 Log.e(TAG, "DATA WASNT RECEIVED");
 
             }
         }
+
+
+
 
 }

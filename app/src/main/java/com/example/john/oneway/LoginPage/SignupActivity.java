@@ -2,7 +2,6 @@ package com.example.john.oneway.LoginPage;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.example.john.oneway.Controller.MainActivity;
+import com.example.john.oneway.Controller.Passenger;
 import com.example.john.oneway.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;

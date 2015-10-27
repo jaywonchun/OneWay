@@ -3,15 +3,19 @@ package com.example.john.oneway.Controller;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.john.oneway.Driver;
+import com.example.john.oneway.Filter.Pop;
 import com.example.john.oneway.Filter.SearchActivity;
 import com.example.john.oneway.LoginPage.LoginActivity;
 import com.example.john.oneway.R;
@@ -34,69 +38,84 @@ public class MainActivity extends AppCompatActivity implements  GoogleApiClient.
 
     public static final String TAG = MainActivity.class.getSimpleName();
     public static final String EXTRA = "FilterExtra";
-
+    private static AutoCompleteTextView mAutocompleteTextView;
+    private LatLng globalLatLng;
     MapFragment mMapFragment;
-protected Location mLastLocation;
-private GoogleMap map;
-private Button mSearchButton;
+    protected Location mLastLocation;
+    private GoogleMap map;
+    private Button mSearchButton;
     private LatLng latLng;
-private GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
     protected TextView mLatitudeText;
     protected TextView mLongitudeText;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mSearchButton = (Button) findViewById(R.id.search_filter);
 
 
+        final ParseUser currentUser = ParseUser.getCurrentUser();
+        final boolean userCheck = currentUser != null;
 
 
-
-        ParseUser currentUser = ParseUser.getCurrentUser();
-       //        currentUser.put();
-        if(currentUser == null) {
+        if (currentUser == null) {
             navigateToLogin();
-        }
-        else {
-            Log.i(TAG,currentUser.getUsername());
-        }
+        } else {
+            Log.i(TAG, "name is" + currentUser.getUsername());
+            String userCategory = currentUser.getString("type");
 
-        mMapFragment = ((MapFragment) getFragmentManager()
-               .findFragmentById(R.id.map));
-        if(mMapFragment !=null) {
-            mMapFragment.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    loadMap(googleMap);
-                   latLng = loadMap(googleMap);
+
+            Log.e(TAG, "type of user is" + userCategory);
+            if (userCategory.equals("Driver")) {
+                setContentView(R.layout.activity_main);
+                mSearchButton = (Button) findViewById(R.id.search_filter);
+
+                // http://stackoverflow.com/questions/22759644/access-the-variable-in-activity-in-another-class
+
+
+                //        currentUser.put();
+
+                mMapFragment = ((MapFragment) getFragmentManager()
+                        .findFragmentById(R.id.map));
+                if (mMapFragment != null) {
+                    mMapFragment.getMapAsync(new OnMapReadyCallback() {
+                        @Override
+                        public void onMapReady(GoogleMap googleMap) {
+                            if (userCheck) {
+                                loadMap(googleMap);
+                                latLng = loadMap(googleMap);
+                            }
+                        }
+
+                    });
+
 
                 }
 
-            });
+                mSearchButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                        //   intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        //  intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.putExtra(MainActivity.EXTRA, latLng);
+                        startActivity(intent);
 
+                    }
+                });
 
-        }
-
-        mSearchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-                //   intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                //  intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.putExtra(MainActivity.EXTRA,latLng);
-                startActivity(intent);
-
+            } else {
+                setContentView(R.layout.activity_passenger);
+                if (currentUser == null) {
+                    navigateToLogin();
+                } else {
+                    Log.i(TAG, "name is" + currentUser.getUsername());
+                }
             }
-        });
-
+        }
     }
 
-
-
-        protected LatLng loadMap( GoogleMap googleMap) {
+    protected LatLng loadMap( GoogleMap googleMap) {
         map = googleMap;
         if (map != null) {
             Log.v(TAG, "my map is ready to use");
@@ -108,29 +127,199 @@ private GoogleApiClient mGoogleApiClient;
                         @Override
                         public void onConnected(Bundle bundle) {
 
-
                             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                                     mGoogleApiClient);
-                            if (mLastLocation != null) {
-                                mLastLocation.getLatitude();
-                                mLastLocation.getLongitude();
-                                latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                            Log.e(TAG, "my last location is " + mLastLocation);
+
+                            ParseUser currentUser = ParseUser.getCurrentUser();
+                            ParseUser user;
+                            user = currentUser;
 
 
-                                Log.v(TAG, "we are connected!");
+                            Double lang = (Double) currentUser.get("updatedLastLocationLatitude");
+                            Double longi = (Double) currentUser.get("updatedLastLocationLongitude");
 
-                                Log.v(TAG, "my latitude is " + mLastLocation.getLatitude());
+
+                            Intent i =  getIntent();
+                            String checkUser = i.getStringExtra(SearchActivity.EXTRA);
+                            String x = "true";
+                            String y = "false";
+                            Log.e(TAG,"my value is" + checkUser);
+                            if (x.equals(checkUser)) {
+                                Log.e(TAG, "my check is " + checkUser);
+
+                                ParseUser parseUser = ParseUser.getCurrentUser();
+                                double userLatitude =  parseUser.getDouble("latitude");
+                                double userLongitude =  parseUser.getDouble("longitude");
+                                Log.e(TAG, "my userlocation is " + userLatitude);
+
+                                latLng = new LatLng(userLatitude, userLongitude);
+
+                                globalLatLng = latLng;
+
+                                 currentUser = ParseUser.getCurrentUser();
+                                user = currentUser;
+
+                                user.put("updatedLastLocationLatitude", globalLatLng.latitude);
+                                user.put("updatedLastLocationLongitude", globalLatLng.longitude);
+
+                                user.saveInBackground();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                Log.v(TAG, "we are not connected!" + globalLatLng);
+
                                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
                                 map.animateCamera(cameraUpdate);
 
                                 map.addMarker(new MarkerOptions()
-                                        .position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()))
+                                        .position(new LatLng(userLatitude, userLongitude))
                                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                                         .title("The 6ix"));
 
 
 
-                            }}
+
+
+                            } else if (y.equals(checkUser)) {
+                                Log.e(TAG, "my check is " + checkUser);
+
+                                //if (SearchActivity.mAutocompleteTextView.isEnabled() == true) {
+
+                                //  Intent intent = new Intent();
+                                // LatLng userLocation = intent.getParcelableExtra(SearchActivity.EXTRA);
+
+                                // Log.v(TAG, "my userlocation is " + userLocation.longitude);
+                                // } else {
+
+
+                                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                                        mGoogleApiClient);
+                                Log.e(TAG, "my last location is " + mLastLocation);
+
+
+                                if (mLastLocation != null) {
+                                    mLastLocation.getLatitude();
+                                    mLastLocation.getLongitude();
+                                    latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
+
+
+                                    //   CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(userLocation, 14);
+                                    //     map.animateCamera(cameraUpdate);
+                                    globalLatLng = latLng;
+
+                                     currentUser = ParseUser.getCurrentUser();
+
+                                    user = currentUser;
+
+
+                                    user.put("updatedLastLocationLatitude", globalLatLng.latitude);
+                                    user.put("updatedLastLocationLongitude", globalLatLng.longitude);
+
+
+                                    user.saveInBackground();
+
+
+
+
+
+                                    Log.v(TAG, "we are connected!" + globalLatLng);
+
+
+
+                                    Log.v(TAG, "my latitude is " + mLastLocation.getLatitude());
+                                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
+                                    map.animateCamera(cameraUpdate);
+
+                                    map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()))
+                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                                            .title("The 6ix"));
+
+
+                                }
+
+                            }
+                            else if (lang !=null && longi != null){
+                                 currentUser = ParseUser.getCurrentUser();
+                                if(currentUser.isAuthenticated()) {
+                                     lang = (Double) currentUser.get("updatedLastLocationLatitude");
+                                     longi = (Double) currentUser.get("updatedLastLocationLongitude");
+
+                                    latLng = new LatLng(lang, longi);
+
+
+                                    Log.e(TAG, "REAL SLIM SHADY" + currentUser.get("updatedLastLocationLatitude"));
+                                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
+                                    map.animateCamera(cameraUpdate);
+                                }
+                                  /*  map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()))
+                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                                            .title("The 6ix"));
+                                    */
+                            }else {
+                                Log.e(TAG, "my check is " + checkUser);
+
+                                //if (SearchActivity.mAutocompleteTextView.isEnabled() == true) {
+
+                                //  Intent intent = new Intent();
+                                // LatLng userLocation = intent.getParcelableExtra(SearchActivity.EXTRA);
+
+                                // Log.v(TAG, "my userlocation is " + userLocation.longitude);
+                                // } else {
+
+
+                                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                                        mGoogleApiClient);
+                                Log.e(TAG, "my last location is " + mLastLocation);
+
+
+                                if (mLastLocation != null) {
+                                    mLastLocation.getLatitude();
+                                    mLastLocation.getLongitude();
+                                    latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
+
+
+                                    //   CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(userLocation, 14);
+                                    //     map.animateCamera(cameraUpdate);
+                                    globalLatLng = latLng;
+                                    Log.v(TAG, "we are connected!" + globalLatLng);
+
+
+
+                                    Log.v(TAG, "my latitude iss " + mLastLocation.getLatitude());
+                                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
+                                    map.animateCamera(cameraUpdate);
+
+                                    map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()))
+                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                                            .title("The 6ix"));
+
+
+                                }
+                            }
+
+
+
+                            // Log.e(TAG, "Real value is"+ globalLatLng);
+
+                        }
 
                         @Override
                         public void onConnectionSuspended(int i) {
@@ -146,17 +335,17 @@ private GoogleApiClient mGoogleApiClient;
             Toast.makeText(this, "Error- Map was null!", Toast.LENGTH_SHORT).show();
         }
 
-            return latLng;
+        return latLng;
 
     }
 
 
 
-private void connectClient() {
+    private void connectClient() {
         if(mGoogleApiClient !=null) {
             mGoogleApiClient.connect();
         }
-}
+    }
 
 
 
@@ -169,6 +358,7 @@ private void connectClient() {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+
 
 
     @Override
@@ -184,6 +374,7 @@ private void connectClient() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        Log.e(TAG, "I'm getting called" + id);
         if(id == R.id.action_logout){
             ParseUser.logOut();
             navigateToLogin();
@@ -213,3 +404,4 @@ private void connectClient() {
 
     }
 }
+
